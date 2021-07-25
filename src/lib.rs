@@ -18,6 +18,12 @@ enum AuthMethod {
     UserPass = 0x02,
 }
 
+impl From<AuthMethod> for u8 {
+    fn from(auth_method: AuthMethod) -> u8 {
+        auth_method as u8
+    }
+}
+
 enum Rep {
     Success = 0x00,
 }
@@ -28,11 +34,7 @@ impl From<Rep> for u8 {
     }
 }
 
-impl From<AuthMethod> for u8 {
-    fn from(auth_method: AuthMethod) -> u8 {
-        auth_method as u8
-    }
-}
+
 
 #[derive(thiserror::Error, Debug)]
 enum Socks5Error {
