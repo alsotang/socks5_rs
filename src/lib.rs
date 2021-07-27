@@ -1,5 +1,5 @@
 use std::{io, net::ToSocketAddrs, usize};
-
+use std::convert::TryFrom;
 use bytes::Buf;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
 use tokio::{
@@ -138,8 +138,10 @@ enum Atyp {
     V6 = 0x04,
 }
 
-impl Atyp {
-    fn from_u8(n: u8) -> Result<Self, Socks5Error> {
+impl TryFrom<u8> for Atyp {
+    type Error = Socks5Error;
+
+    fn try_from(n: u8) -> Result<Self, Self::Error> {
         match n {
             0x01 => Ok(Atyp::V4),
             0x03 => Ok(Atyp::Domain),
@@ -170,7 +172,7 @@ impl Socks5Req {
         let mut first4 = [0u8; 4];
         stream.read_exact(&mut first4).await?;
 
-        let atyp = Atyp::from_u8(first4[3]).unwrap();
+        let atyp = Atyp::try_from(first4[3]).unwrap();
 
         let addr = match atyp {
             Atyp::V4 => {
